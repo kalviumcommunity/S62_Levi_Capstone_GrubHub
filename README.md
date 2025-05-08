@@ -36,4 +36,6 @@ This system digitizes the canteen experience by enabling online ordering, queue 
 | **Week 6** | Develop the analytics dashboard, finalize testing, and fix bugs. |
 | **Week 7** | Deployment, documentation, and final showcase preparation. |
 
+## Deployed Link: https://s62-levi-capstone-grub-hub.vercel.app/
+
 
