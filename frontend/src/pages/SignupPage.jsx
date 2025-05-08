@@ -38,7 +38,7 @@ const SignupPage = () => {
       });
 
       if (response.ok) {
-        navigate('/LoginPage');
+        navigate('/login');
       } else {
         const data = await response.json();
         setError(data.message || 'Signup failed');
