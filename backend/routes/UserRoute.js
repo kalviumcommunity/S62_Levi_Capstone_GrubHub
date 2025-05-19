@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const User = require("../models/UserModel.js")
 const SECRET = process.env.SECRET;
+const authMiddleware = require('../middlewares/authMiddleware.js')
 
 const router = express.Router();
 
