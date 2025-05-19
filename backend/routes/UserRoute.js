@@ -46,7 +46,6 @@ res.status(200).json({ message: 'Login successful', token });
   }
 });
 
-module.exports = router;
 
 //GET request
 router.get('/', authMiddleware, async (req, res) => {
@@ -63,3 +62,36 @@ router.get('/', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve users' });
   }
 });
+
+//PUT Request
+router.put('/:id', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const updates = {};
+    if (username) updates.username = username;
+    if (email) updates.email = email;
+    if (password) updates.password = await bcrypt.hash(password, 10);
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ message: 'User updated', updatedUser });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update user' });
+  }
+});
+
+// DELETE Request
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ message: 'User deleted', deletedUser });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete user' });
+  }
+});
+
+module.exports = router;
