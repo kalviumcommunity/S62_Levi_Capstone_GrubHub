@@ -37,5 +37,6 @@ This system digitizes the canteen experience by enabling online ordering, queue 
 | **Week 7** | Deployment, documentation, and final showcase preparation. |
 
 ## Deployed Link: https://s62-levi-capstone-grub-hub.vercel.app/
+## Backend Deployed Link:  https://s62-levi-capstone-grubhub-4.onrender.com/
 
 
