@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/UserModel.js")
 const SECRET = process.env.SECRET;
 const authMiddleware = require('../middlewares/authMiddleware.js')
+const Order = require("../models/OrderModel.js")
 
 const router = express.Router();
 
@@ -101,5 +102,24 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to delete user' });
   }
 });
+
+//POST request for creating an order
+router.post('/order',authMiddleware, async(req, res) => {
+  try{
+    const {items, total} = req.body;
+    const userEmail = req.user.email
+
+    if(!items || items.length == 0){
+      return res.status(400).json({ message: 'Cart is empty'})
+    }
+
+    const order = new Order({ userEmail, items, total})
+    await order.save()
+
+    res.status(201).json({ message: 'Order placed successfully!'})
+  } catch(err){
+    res.status(500).json({ message: "Order placement failed"})
+  }
+})
 
 module.exports = router;

@@ -1,78 +1,86 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const CheckoutPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const cart = state?.cart || [];
 
-  const handlePlaceOrder = () => {
-    // You can replace this with API logic
-    localStorage.removeItem('cart');
-    navigate('/order-confirmation');
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const handlePlaceOrder = async () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert('You need to be logged in to place an order.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:8080/user/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ items: cart, total }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Order placed successfully!');
+        navigate('/');
+      } else {
+        alert(data.message || 'Failed to place order');
+      }
+    } catch (err) {
+      alert('Network error while placing order');
+    }
   };
 
-  const getTotal = () => cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div
+      className="min-h-screen bg-cover bg-center relative"
+      style={{ backgroundImage: "url('/images/LandingImage4.jpg')" }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-70 z-0" />
 
-      <div className="flex-1 bg-white py-12 px-4 sm:px-8 lg:px-20">
-        <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+      {/* Checkout card */}
+      <div className="relative z-10 container mx-auto px-4 py-16 flex justify-center">
+        <div className="bg-white bg-opacity-95 w-full max-w-2xl rounded-lg shadow-xl p-8">
+          <h1 className="text-3xl font-bold mb-6 text-center text-black">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Cart Items Summary */}
-          <div className="bg-gray-100 p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            {cart.map((item, index) => (
-              <div key={index} className="flex justify-between mb-3">
-                <span>{item.name} x {item.quantity}</span>
-                <span>₹{item.quantity * item.price}</span>
+          {cart.length === 0 ? (
+            <p className="text-center text-gray-600">Your cart is empty.</p>
+          ) : (
+            <div className="space-y-6">
+              {cart.map((item, idx) => (
+                <div key={idx} className="border-b pb-4">
+                  <h2 className="text-lg font-semibold text-black">{item.name}</h2>
+                  <p className="text-gray-700">Quantity: {item.quantity}</p>
+                  <p className="text-gray-700">
+                    Price: ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                  </p>
+                </div>
+              ))}
+
+              <div className="mt-6 text-xl font-bold text-black">
+                Total: ₹{total}
               </div>
-            ))}
-            <div className="border-t pt-4 mt-4 font-bold text-lg flex justify-between">
-              <span>Total</span>
-              <span>₹{getTotal()}</span>
-            </div>
-          </div>
 
-          {/* Form */}
-          <div className="bg-gray-100 p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Your Details</h2>
-            <form onSubmit={(e) => { e.preventDefault(); handlePlaceOrder(); }} className="space-y-4">
-              <input
-                type="text"
-                required
-                placeholder="Name"
-                className="w-full px-4 py-3 rounded border focus:outline-none"
-              />
-              <input
-                type="text"
-                required
-                placeholder="Roll Number"
-                className="w-full px-4 py-3 rounded border focus:outline-none"
-              />
-              <input
-                type="time"
-                required
-                placeholder="Pickup Time"
-                className="w-full px-4 py-3 rounded border focus:outline-none"
-              />
               <button
-                type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-semibold transition"
+                onClick={handlePlaceOrder}
+                className="mt-6 bg-red-600 text-white w-full py-3 rounded hover:bg-red-700 transition"
               >
                 Place Order
               </button>
-            </form>
-          </div>
+            </div>
+          )}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };
